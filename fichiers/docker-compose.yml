@@ -1,0 +1,29 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: n8n-local
+    restart: unless-stopped
+    ports:
+      # http://localhost:5678  -> l'interface de n8n
+      - "5678:5678"
+    environment:
+      # --- Accès / interface ---
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      # --- Fuseau horaire (pour les Schedule Trigger) ---
+      - GENERIC_TIMEZONE=America/Toronto
+      - TZ=America/Toronto
+      # --- Confort débutant : on garde l'interface simple ---
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_PERSONALIZATION_ENABLED=false
+      # Empêche un avertissement au démarrage sur les permissions de fichiers.
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+    volumes:
+      # Toutes tes données (workflows, credentials chiffrées, base SQLite)
+      # sont stockées ici et SURVIVENT à un redémarrage du conteneur.
+      - ./n8n_data:/home/node/.n8n
+      # Dossier partagé hôte <-> conteneur, utile pour lire/écrire des fichiers
+      # depuis tes workflows (voir Leçon 6).
+      - ./fichiers:/data
